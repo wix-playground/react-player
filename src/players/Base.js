@@ -29,9 +29,11 @@ export default class Base extends Component {
       this.stop()
       clearTimeout(this.updateTimeout)
     } else if (!this.props.playing && nextProps.playing) {
-      this.play()
+      clearTimeout(this.playPauseTimeout)
+      this.playPauseTimeout = setTimeout(() => this.play(), 0)
     } else if (this.props.playing && !nextProps.playing) {
-      this.pause()
+      clearTimeout(this.playPauseTimeout)
+      this.playPauseTimeout = setTimeout(() => this.pause(), 0)
     } else if (this.props.volume !== nextProps.volume) {
       this.setVolume(nextProps.volume)
     }
