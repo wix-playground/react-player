@@ -14,7 +14,9 @@ export default class ReactPlayer extends Component {
   static propTypes = propTypes
   static defaultProps = defaultProps
   componentDidMount () {
-    this.progress()
+    if (this.props.onProgress) {
+      this.progress()
+    }
   }
   componentWillUnmount () {
     clearTimeout(this.progressTimeout)
@@ -27,12 +29,18 @@ export default class ReactPlayer extends Component {
       this.props.playbackRate !== nextProps.playbackRate ||
       this.props.height !== nextProps.height ||
       this.props.width !== nextProps.width ||
-      this.props.hidden !== nextProps.hidden
+      this.props.hidden !== nextProps.hidden ||
+      this.props.fileConfig !== nextProps.fileConfig
     )
   }
   seekTo = fraction => {
     if (this.player) {
       this.player.seekTo(fraction)
+    }
+  }
+  stopBuffering = () => {
+    if (this.player && this.player.stopBuffering) {
+      this.player.stopBuffering()
     }
   }
   progress = () => {
@@ -43,8 +51,15 @@ export default class ReactPlayer extends Component {
       if (loaded !== this.prevLoaded) {
         progress.loaded = loaded
       }
-      if (played !== this.prevPlayed) {
-        progress.played = played
+      if (this.props.playing) {
+        if (played !== this.prevPlayed) {
+          progress.played = played
+        }
+        const buffering = !progress.played
+        if (buffering !== this.prevBuffering) {
+          this.props.onBuffer(buffering)
+          this.prevBuffering = buffering
+        }
       }
       if (progress.loaded || progress.played) {
         this.props.onProgress(progress)
@@ -101,12 +116,22 @@ export default class ReactPlayer extends Component {
       />
     )
   }
+
+  onWrapperClick () {
+    if (this.props.onWrapperClick) {
+      this.props.onWrapperClick()
+    }
+  }
+
   render () {
     const { style, width, height, className, hidden } = this.props
     const players = this.renderPlayers()
+    const isExternalPlayer = YouTube.canPlay(this.props.url) || Vimeo.canPlay(this.props.url)
+    const thumbnail = (<img src={this.props.poster} width={`${this.props.width}px`} height={`${this.props.height}px`} className='gallery--placeholder-item' />)
+
     return (
-      <div style={{ ...style, width, height }} className={className} hidden={hidden}>
-        {players}
+      <div style={{ ...style, width, height }} className={className} hidden={hidden} onClick={this.onWrapperClick.bind(this)}>
+        {(isExternalPlayer && this.props.onWrapperClick && !this.props.playedOnce) ? thumbnail : players}
       </div>
     )
   }

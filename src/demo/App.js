@@ -19,7 +19,8 @@ export default class App extends Component {
     played: 0,
     loaded: 0,
     duration: 0,
-    playbackRate: 1.0
+    playbackRate: 1.0,
+    buffering: true
   }
   load = url => {
     this.setState({
@@ -33,6 +34,10 @@ export default class App extends Component {
   }
   stop = () => {
     this.setState({ url: null, playing: false })
+  }
+  stopBuffering = () => {
+    this.setState({ playing: false })
+    this.player.stopBuffering()
   }
   setVolume = e => {
     this.setState({ volume: parseFloat(e.target.value) })
@@ -56,6 +61,9 @@ export default class App extends Component {
     if (!this.state.seeking) {
       this.setState(state)
     }
+  }
+  onBuffer = buffering => {
+    this.setState({buffering})
   }
   onClickFullscreen = () => {
     screenfull.request(findDOMNode(this.player))
@@ -82,6 +90,7 @@ export default class App extends Component {
       url, playing, volume,
       played, loaded, duration,
       playbackRate,
+      buffering,
       soundcloudConfig,
       vimeoConfig,
       youtubeConfig,
@@ -110,7 +119,7 @@ export default class App extends Component {
             onStart={() => console.log('onStart')}
             onPlay={() => this.setState({ playing: true })}
             onPause={() => this.setState({ playing: false })}
-            onBuffer={() => console.log('onBuffer')}
+            onBuffer={this.onBuffer}
             onEnded={() => this.setState({ playing: false })}
             onError={e => console.log('onError', e)}
             onProgress={this.onProgress}
@@ -121,6 +130,7 @@ export default class App extends Component {
             <tr>
               <th>Controls</th>
               <td>
+                <button onClick={this.stopBuffering}>Stop Buffering</button>
                 <button onClick={this.stop}>Stop</button>
                 <button onClick={this.playPause}>{playing ? 'Pause' : 'Play'}</button>
                 <button onClick={this.onClickFullscreen}>Fullscreen</button>
@@ -259,6 +269,10 @@ export default class App extends Component {
             <tr>
               <th>remaining</th>
               <td><Duration seconds={duration * (1 - played)} /></td>
+            </tr>
+            <tr>
+              <th>buffering</th>
+              <td>{buffering ? 'true' : 'false'}</td>
             </tr>
           </tbody></table>
         </section>

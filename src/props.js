@@ -50,7 +50,7 @@ export const defaultProps = {
   width: 640,
   height: 360,
   hidden: false,
-  progressFrequency: 1000,
+  progressFrequency: 100,
   soundcloudConfig: {
     clientId: 'e8b6f84fbcad14c301ca1355cae1dea2',
     showArtwork: true

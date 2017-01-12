@@ -66,6 +66,23 @@ export default class FilePlayer extends Base {
     if (!this.isReady || this.player.buffered.length === 0) return null
     return this.player.buffered.end(0) / this.getDuration()
   }
+
+  stopBuffering () {
+    this.player.pause()
+    const time = this.player.currentTime
+
+    const setTime = () => {
+      this.player.currentTime = time
+      this.player.removeEventListener('loadedmetadata', setTime)
+    }
+    this.player.addEventListener('loadedmetadata', setTime)
+    this.player.load()
+    try {
+      setTime() // if it can't set player.currentTime, it will run in the event listener.
+    } catch (e) {
+    }
+  }
+
   ref = player => {
     this.player = player
   }
