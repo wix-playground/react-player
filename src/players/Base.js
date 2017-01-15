@@ -44,7 +44,7 @@ export default class Base extends Component {
   }
   shouldComponentUpdate (nextProps) {
     return this.props.url !== nextProps.url ||
-        this.props.fileConfig !== nextProps.fileConfig;
+    this.props.fileConfig !== nextProps.fileConfig
   }
   seekTo (fraction) {
     // When seeking before player is ready, store value and seek later
